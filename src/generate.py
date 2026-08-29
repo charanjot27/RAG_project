@@ -109,3 +109,19 @@ def generate_answer(query: str, chunks: list[dict]) -> str:
         return "The provided sources do not cover this."
     user = f"Sources:\n{format_context(chunks)}\n\nQuestion: {query}"
     return complete(user)
+
+
+# A permissive prompt used ONLY as the "naive RAG" baseline in the hallucination
+# benchmark — it happily answers from world knowledge, which is exactly the
+# behavior the faithfulness check is meant to catch.
+NAIVE_SYSTEM = (
+    "You are a helpful assistant. Use the sources if relevant, but answer the "
+    "question either way. Always give a direct answer."
+)
+
+
+def generate_answer_naive(query: str, chunks: list[dict]) -> str:
+    """Baseline generator with no grounding constraint (for benchmarking only)."""
+    context = format_context(chunks) if chunks else "(no sources)"
+    user = f"Sources:\n{context}\n\nQuestion: {query}"
+    return complete(user, system=NAIVE_SYSTEM)

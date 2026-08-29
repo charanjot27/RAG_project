@@ -60,6 +60,15 @@ TOP_N = int(os.getenv("TOP_N", "5"))             # chunks kept after reranking
 # Web mode: how many search results to fetch, and how many chunks to keep per page.
 WEB_RESULTS = int(os.getenv("WEB_RESULTS", "5"))
 WEB_MAX_CHUNKS_PER_PAGE = int(os.getenv("WEB_MAX_CHUNKS_PER_PAGE", "6"))
+
+# Web-cache mode ("web_cached"): fetched web chunks are embedded into Qdrant so
+# repeat/related questions are answered instantly from the growing index; the
+# web is only hit when the cache can't cover the question.
+WEB_CACHE_COLLECTION = os.getenv("WEB_CACHE_COLLECTION", "verifin_web")
+# If the cache already returns this many hits at/above the similarity floor,
+# skip the live web fetch entirely (instant answer).
+WEB_CACHE_MIN_HITS = int(os.getenv("WEB_CACHE_MIN_HITS", "5"))
+WEB_CACHE_SIM_THRESHOLD = float(os.getenv("WEB_CACHE_SIM_THRESHOLD", "0.55"))
 RERANKER_MODEL = os.getenv(
     "RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2"
 )
@@ -84,6 +93,9 @@ ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 NLI_MODEL = os.getenv("NLI_MODEL", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")
 # Entailment score above which a sentence counts as "grounded".
 ENTAILMENT_THRESHOLD = float(os.getenv("ENTAILMENT_THRESHOLD", "0.5"))
+# Abstention: if the answer's faithfulness score is below this, refuse to answer
+# ("knows when it doesn't know"). 0.0 disables abstention; 0.5 is a good start.
+ABSTAIN_THRESHOLD = float(os.getenv("ABSTAIN_THRESHOLD", "0.0"))
 
 # --- API -------------------------------------------------------------------
 # Comma-separated list of allowed CORS origins for the browser UI.

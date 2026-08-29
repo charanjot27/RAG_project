@@ -61,6 +61,43 @@ def test_format_context_numbers_sources():
     assert "[1]" in ctx and "a.pdf p.3" in ctx and "hello" in ctx
 
 
+def test_build_output_self_correction_drops_unverified():
+    verified = [
+        {"sentence": "Grounded fact.", "label": "grounded", "score": 0.9,
+         "source": {"source": "x.pdf", "page": 1}},
+        {"sentence": "Made up claim.", "label": "unverified", "score": 0.1, "source": None},
+    ]
+    out = build_output(verified)
+    # grounded_answer keeps only the verified sentence
+    assert out["grounded_answer"] == "Grounded fact."
+    assert "Made up claim." not in out["grounded_answer"]
+
+
+def test_build_output_abstains_below_threshold():
+    verified = [
+        {"sentence": "Unsupported.", "label": "unverified", "score": 0.1, "source": None},
+    ]
+    out = build_output(verified, abstain_threshold=0.5)
+    assert out["abstained"] is True
+    assert out["faithfulness_score"] == 0.0
+    assert "can't confidently answer" in out["answer"].lower()
+
+
+def test_build_output_no_abstain_when_disabled():
+    verified = [
+        {"sentence": "Unsupported.", "label": "unverified", "score": 0.1, "source": None},
+    ]
+    out = build_output(verified, abstain_threshold=0.0)
+    assert out["abstained"] is False
+
+
+def test_web_cache_point_id_is_deterministic():
+    from src.web_cache import _point_id
+
+    assert _point_id("https://x.com#c0") == _point_id("https://x.com#c0")
+    assert _point_id("https://x.com#c0") != _point_id("https://x.com#c1")
+
+
 def test_web_search_chunks_builds_url_cited_records(monkeypatch):
     # Mock search + fetch so the test needs no network.
     monkeypatch.setattr(

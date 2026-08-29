@@ -35,9 +35,10 @@ class Query(BaseModel):
 
 def _index_status() -> dict:
     """Report whether the vector index exists and how many chunks it holds."""
-    if RETRIEVAL_MODE == "web":
-        # Web mode needs no local index — the internet is the knowledge base.
-        return {"index_ready": True, "mode": "web"}
+    if RETRIEVAL_MODE in ("web", "web_cached"):
+        # Web modes need no prebuilt index — the internet is the knowledge base
+        # (web_cached builds its own Qdrant cache on the fly).
+        return {"index_ready": True, "mode": RETRIEVAL_MODE}
     try:
         from src.qdrant import get_client
 

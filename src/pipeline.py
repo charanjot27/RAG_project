@@ -29,11 +29,15 @@ def _timed(stage: str, fn, *args):
 
 
 def _retrieve(query: str) -> list[dict]:
-    """Get candidate chunks — from live web search or the local index."""
+    """Get candidate chunks — from the local index, live web, or cached web."""
     if RETRIEVAL_MODE == "web":
         from src.web_source import web_search_chunks
 
         return web_search_chunks(query)
+    if RETRIEVAL_MODE == "web_cached":
+        from src.web_cache import cached_web_search
+
+        return cached_web_search(query)
     from src.retrieval import hybrid_search
 
     return hybrid_search(query, RETRIEVE_K)

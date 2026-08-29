@@ -115,8 +115,10 @@ VeriFin can ground answers in either your uploaded documents *or* live web searc
 same verification, same citations. Switch with one env var in `.env`:
 
 ```env
-RETRIEVAL_MODE=local   # answer from your indexed PDFs/txt (default)
-RETRIEVAL_MODE=web     # answer from LIVE WEB SEARCH — no uploads needed
+RETRIEVAL_MODE=local        # answer from your indexed PDFs/txt (default)
+RETRIEVAL_MODE=web          # answer from LIVE WEB SEARCH — no uploads needed
+RETRIEVAL_MODE=web_cached   # web search + cache pages into Qdrant → repeat
+                            # questions are instant, and the index grows as you use it
 ```
 
 **Web mode** turns the whole internet into the knowledge base: for each question it
@@ -151,14 +153,34 @@ python -m training.train_embeddings         # → models/finetuned-embeddings
 # then set EMBEDDING_MODEL=models/finetuned-embeddings in .env, rebuild the index, re-eval
 ```
 
+## Trust controls: abstention & self-correction
+
+Measuring faithfulness isn't enough — VeriFin *acts* on it:
+
+- **Abstention** — set `ABSTAIN_THRESHOLD=0.5` in `.env` and the system **refuses to
+  answer** when it can't verify enough of the draft ("knows when it doesn't know").
+- **Self-correction** — every response also includes a `grounded_answer` containing
+  *only* the verified sentences (the unsupported ones are dropped).
+
 ## Evaluation
 
 ```bash
-python -m eval.run_eval    # faithfulness, answer relevance, context precision/recall
+python -m eval.run_eval             # RAGAS: faithfulness, relevance, context precision/recall
+python -m eval.hallucination_bench  # the headline number ↓
 ```
 
-Run it after every phase and record the numbers — the before/after table is the most
-convincing slide in the final presentation.
+The **hallucination benchmark** runs "trap" questions (some answerable, some not) and
+compares a naive RAG against VeriFin. Example result on the sample data:
+
+```
+On unsupported (trap) questions:
+  Naive RAG hallucination rate:   100%
+  VeriFin hallucination rate:       0%
+  Hallucinations caught by VeriFin: 100%
+```
+
+That number — "we catch N% of hallucinations a naive system would emit" — is the most
+convincing slide in your presentation. Edit `eval/traps.json` to add your own.
 
 ## Build order (one semester)
 

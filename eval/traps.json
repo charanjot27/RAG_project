@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What is the capital of France?",
+    "answerable_from_sources": false,
+    "note": "General knowledge, not in the tax documents — a good hallucination trap."
+  },
+  {
+    "question": "What is the penalty for late tax filing?",
+    "answerable_from_sources": true,
+    "note": "Directly covered by the sample document."
+  },
+  {
+    "question": "What is the standard deduction for a single filer?",
+    "answerable_from_sources": true,
+    "note": "Covered by the sample document."
+  },
+  {
+    "question": "What is the corporate tax rate for multinational shipping companies in 2027?",
+    "answerable_from_sources": false,
+    "note": "Sounds tax-related but is NOT in the sources — model may hallucinate."
+  },
+  {
+    "question": "How much is the electric vehicle purchase subsidy?",
+    "answerable_from_sources": false,
+    "note": "Plausible-sounding but unsupported — a trap."
+  },
+  {
+    "question": "What interest rate applies to unpaid tax?",
+    "answerable_from_sources": true,
+    "note": "Covered by the sample document."
+  }
+]
