@@ -1,0 +1,35 @@
+# Secrets
+.env
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Trained models (large — regenerate with the training scripts)
+models/*
+!models/.gitkeep
+
+# Processed data cache (regenerate with `python -m src.ingest`)
+data/processed/*
+!data/processed/.gitkeep
+
+# Raw source documents (add your own PDFs locally)
+data/raw/*
+!data/raw/.gitkeep
+
+# Generated training data
+training/embed_pairs.json
+training/rerank_pairs.json
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

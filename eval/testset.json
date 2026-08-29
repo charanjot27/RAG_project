@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is the penalty for late tax filing?",
+    "ground_truth": "A penalty applies for filing after the due date; replace with the exact rate stated in your source documents."
+  },
+  {
+    "question": "What is the standard deduction for the year?",
+    "ground_truth": "The standard deduction amount stated in your source documents."
+  },
+  {
+    "question": "What interest is charged on unpaid tax?",
+    "ground_truth": "The interest rate on unpaid or overdue tax as stated in your source documents."
+  }
+]
