@@ -49,8 +49,17 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")  # Qdrant Cloud key
 COLLECTION = os.getenv("QDRANT_COLLECTION", "verifin")
 
 # --- Retrieval / rerank ----------------------------------------------------
+# Where answers are grounded:
+#   "local" -> your indexed documents in Qdrant (add PDFs/txt to data/raw)
+#   "web"   -> live web search: the knowledge base is the internet, no manual
+#              uploads. Every sentence is still verified + cited to a URL.
+RETRIEVAL_MODE = os.getenv("RETRIEVAL_MODE", "local").lower()
 RETRIEVE_K = int(os.getenv("RETRIEVE_K", "20"))  # candidates from hybrid search
 TOP_N = int(os.getenv("TOP_N", "5"))             # chunks kept after reranking
+
+# Web mode: how many search results to fetch, and how many chunks to keep per page.
+WEB_RESULTS = int(os.getenv("WEB_RESULTS", "5"))
+WEB_MAX_CHUNKS_PER_PAGE = int(os.getenv("WEB_MAX_CHUNKS_PER_PAGE", "6"))
 RERANKER_MODEL = os.getenv(
     "RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2"
 )

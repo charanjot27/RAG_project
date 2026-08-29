@@ -40,9 +40,14 @@ if st.button("Ask") and question:
 
     for s in data["sentences"]:
         if s["status"] == "grounded":
+            citation = s["citation"] or ""
+            # Make web-source URLs clickable.
+            if citation.startswith("http"):
+                url = citation.split(" ")[0]
+                citation = f"<a href='{url}' target='_blank'>{citation}</a>"
             st.markdown(
                 f":green[{s['text']}]  \n"
-                f"<small>Source: {s['citation']} "
+                f"<small>Source: {citation} "
                 f"(confidence {s['confidence']})</small>",
                 unsafe_allow_html=True,
             )

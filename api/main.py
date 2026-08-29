@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from src.config import ALLOWED_ORIGINS, COLLECTION
+from src.config import ALLOWED_ORIGINS, COLLECTION, RETRIEVAL_MODE
 from src.pipeline import answer_question
 
 app = FastAPI(
@@ -35,14 +35,19 @@ class Query(BaseModel):
 
 def _index_status() -> dict:
     """Report whether the vector index exists and how many chunks it holds."""
+    if RETRIEVAL_MODE == "web":
+        # Web mode needs no local index — the internet is the knowledge base.
+        return {"index_ready": True, "mode": "web"}
     try:
         from src.qdrant import get_client
 
         info = get_client().get_collection(COLLECTION)
         count = getattr(info, "points_count", None)
-        return {"index_ready": bool(count), "collection": COLLECTION, "chunks": count}
+        return {"index_ready": bool(count), "mode": "local",
+                "collection": COLLECTION, "chunks": count}
     except Exception as exc:  # collection missing / DB unreachable
-        return {"index_ready": False, "collection": COLLECTION, "error": str(exc)}
+        return {"index_ready": False, "mode": "local",
+                "collection": COLLECTION, "error": str(exc)}
 
 
 @app.get("/health")

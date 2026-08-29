@@ -5,6 +5,7 @@ Heavier integration tests (real retrieval/generation) need the full stack
 and a running Qdrant, so they live outside CI.
 """
 
+from src import web_source
 from src.citations import build_output
 from src.generate import format_context
 from src.ingest import chunk_text
@@ -58,3 +59,20 @@ def test_build_output_empty():
 def test_format_context_numbers_sources():
     ctx = format_context([{"source": "a.pdf", "page": 3, "text": "hello"}])
     assert "[1]" in ctx and "a.pdf p.3" in ctx and "hello" in ctx
+
+
+def test_web_search_chunks_builds_url_cited_records(monkeypatch):
+    # Mock search + fetch so the test needs no network.
+    monkeypatch.setattr(
+        web_source, "search_urls",
+        lambda q, num_results=5: [{"title": "T", "url": "https://example.com/a"}],
+    )
+    monkeypatch.setattr(
+        web_source, "fetch_main_text",
+        lambda url: " ".join(f"word{i}" for i in range(900)),
+    )
+    chunks = web_source.web_search_chunks("anything")
+    assert chunks, "should produce chunks"
+    assert all(c["source"] == "https://example.com/a" for c in chunks)
+    assert all(c["id"].startswith("https://example.com/a#c") for c in chunks)
+    assert all(c["text"] for c in chunks)

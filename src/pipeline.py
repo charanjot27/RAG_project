@@ -12,10 +12,9 @@ import logging
 import time
 
 from src.citations import build_output
-from src.config import RETRIEVE_K, TOP_N
+from src.config import RETRIEVAL_MODE, RETRIEVE_K, TOP_N
 from src.generate import generate_answer
 from src.rerank import rerank
-from src.retrieval import hybrid_search
 from src.verify import verify_answer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -29,8 +28,19 @@ def _timed(stage: str, fn, *args):
     return out
 
 
+def _retrieve(query: str) -> list[dict]:
+    """Get candidate chunks — from live web search or the local index."""
+    if RETRIEVAL_MODE == "web":
+        from src.web_source import web_search_chunks
+
+        return web_search_chunks(query)
+    from src.retrieval import hybrid_search
+
+    return hybrid_search(query, RETRIEVE_K)
+
+
 def answer_question(query: str) -> dict:
-    candidates = _timed("retrieval", hybrid_search, query, RETRIEVE_K)
+    candidates = _timed("retrieval", _retrieve, query)
     top = _timed("rerank", rerank, query, candidates, TOP_N)
     draft = _timed("generation", generate_answer, query, top)
     verified = _timed("verification", verify_answer, draft, top)

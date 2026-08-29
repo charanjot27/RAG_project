@@ -109,6 +109,33 @@ Three pieces: **Qdrant Cloud** (DB) + **Render** (API) + **Streamlit Cloud** (UI
 
 Confirm the deploy with `curl https://<your-api>/health` — `index_ready: true` means it's usable.
 
+## Two knowledge sources: your docs **or** the live web
+
+VeriFin can ground answers in either your uploaded documents *or* live web search —
+same verification, same citations. Switch with one env var in `.env`:
+
+```env
+RETRIEVAL_MODE=local   # answer from your indexed PDFs/txt (default)
+RETRIEVAL_MODE=web     # answer from LIVE WEB SEARCH — no uploads needed
+```
+
+**Web mode** turns the whole internet into the knowledge base: for each question it
+searches the web (DuckDuckGo, no API key), fetches the top pages, extracts their main
+text, and runs them through the *same* rerank → generate → **verify** → cite pipeline.
+Every sentence is still fact-checked, and citations point to real URLs. No `data/raw`,
+no index build, no Qdrant required:
+
+```bash
+# in .env: RETRIEVAL_MODE=web  and a GROQ_API_KEY
+python -m src.web_source "What is the penalty for late tax filing in the US?"   # see raw fetch
+python -m src.pipeline    "What is the penalty for late tax filing in the US?"  # full verified answer
+```
+
+> Web mode needs open internet (your laptop or a normal cloud host). It makes the
+> reranker and the faithfulness check matter *more* — they filter and audit noisy
+> web pages. For a scalable persistent index, keep `local` mode and bulk-ingest
+> sources (SEC EDGAR, docs) into Qdrant Cloud.
+
 ## Configuration
 
 Everything tunable is read from environment variables (see [`.env.example`](.env.example)
