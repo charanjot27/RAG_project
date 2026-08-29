@@ -1,14 +1,4 @@
-"""Evaluation harness — the report card.
-
-Once you can measure quality, you can remove any component, watch the
-score change, and understand what that component does. That loop is the
-whole reverse-engineering education (see DOCUMENTATION.md §23).
-
-Metrics (via RAGAS): faithfulness, answer relevance, context precision,
-context recall. Run it after every phase and write the numbers down.
-
-    python -m eval.run_eval
-"""
+"""RAGAS evaluation over eval/testset.json. Run: python -m eval.run_eval"""
 
 from __future__ import annotations
 

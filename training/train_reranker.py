@@ -1,11 +1,4 @@
-"""Deep-learning component #2 — fine-tune the cross-encoder reranker.
-
-Train on triples: a query, a passage that answers it (label 1), and
-passages that don't (label 0).
-
-Input: training/rerank_pairs.json — a list of {"query", "passage", "label"}.
-Afterwards, set RERANKER_MODEL=models/finetuned-reranker and re-run eval.
-"""
+"""Fine-tune the cross-encoder reranker on query/passage/label triples."""
 
 from __future__ import annotations
 
@@ -26,17 +19,11 @@ def main() -> None:
     model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2", num_labels=1)
     data = json.loads(PAIRS_PATH.read_text())
     examples = [
-        InputExample(texts=[d["query"], d["passage"]], label=float(d["label"]))
-        for d in data
+        InputExample(texts=[d["query"], d["passage"]], label=float(d["label"])) for d in data
     ]
     loader = DataLoader(examples, shuffle=True, batch_size=16)
 
-    model.fit(
-        train_dataloader=loader,
-        epochs=2,
-        warmup_steps=100,
-        output_path=OUTPUT_PATH,
-    )
+    model.fit(train_dataloader=loader, epochs=2, warmup_steps=100, output_path=OUTPUT_PATH)
     print(f"Saved fine-tuned reranker to {OUTPUT_PATH}")
 
 

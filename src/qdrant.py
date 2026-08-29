@@ -1,8 +1,4 @@
-"""Shared Qdrant client factory.
-
-Supports both a local Docker Qdrant (host/port) and Qdrant Cloud
-(URL + API key) via environment variables — see src/config.py.
-"""
+"""Qdrant client factory (embedded, cloud, or server)."""
 
 from __future__ import annotations
 
@@ -22,7 +18,6 @@ def get_client():
     from qdrant_client import QdrantClient
 
     if QDRANT_PATH:
-        # Embedded, on-disk Qdrant — no server or Docker needed.
         return QdrantClient(path=QDRANT_PATH)
     if QDRANT_URL:
         return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)

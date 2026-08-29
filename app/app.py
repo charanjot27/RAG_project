@@ -1,13 +1,4 @@
-"""Frontend — Streamlit UI.
-
-The color-coded, cited answer is the demo: green = backed by a source,
-red = unverified. Run it with the API running in another terminal:
-
-    streamlit run app/app.py
-
-Set API_URL as an environment variable (or Streamlit secret) when the
-API is deployed somewhere other than localhost.
-"""
+"""Streamlit UI. Run: streamlit run app/app.py (with the API running)."""
 
 from __future__ import annotations
 
@@ -27,9 +18,7 @@ question = st.text_input("Ask a question:")
 if st.button("Ask") and question:
     with st.spinner("Retrieving, answering, and fact-checking..."):
         try:
-            res = requests.post(
-                f"{API_URL}/ask", json={"question": question}, timeout=120
-            )
+            res = requests.post(f"{API_URL}/ask", json={"question": question}, timeout=120)
             res.raise_for_status()
             data = res.json()
         except requests.RequestException as exc:
@@ -41,19 +30,16 @@ if st.button("Ask") and question:
     for s in data["sentences"]:
         if s["status"] == "grounded":
             citation = s["citation"] or ""
-            # Make web-source URLs clickable.
             if citation.startswith("http"):
                 url = citation.split(" ")[0]
                 citation = f"<a href='{url}' target='_blank'>{citation}</a>"
             st.markdown(
                 f":green[{s['text']}]  \n"
-                f"<small>Source: {citation} "
-                f"(confidence {s['confidence']})</small>",
+                f"<small>Source: {citation} (confidence {s['confidence']})</small>",
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f":red[⚠ {s['text']}]  \n"
-                f"<small>Unverified — not found in sources</small>",
+                f":red[⚠ {s['text']}]  \n<small>Unverified — not found in sources</small>",
                 unsafe_allow_html=True,
             )

@@ -1,9 +1,4 @@
-"""Backend API — wraps the pipeline in a web service.
-
-Run it:
-    uvicorn api.main:app --reload --port 8000
-Then open http://localhost:8000/docs for an interactive test page.
-"""
+"""FastAPI backend. Run: uvicorn api.main:app --port 8000"""
 
 from __future__ import annotations
 
@@ -20,12 +15,7 @@ from src.config import (
 )
 from src.pipeline import answer_question
 
-app = FastAPI(
-    title="VeriFin API",
-    description="Self-auditing RAG: every sentence is cited or flagged unverified.",
-    version="1.0.0",
-)
-
+app = FastAPI(title="VeriFin API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -39,36 +29,29 @@ VALID_MODES = {"local", "web", "web_cached"}
 
 class Query(BaseModel):
     question: str
-    mode: str | None = None  # override RETRIEVAL_MODE per request (local/web/web_cached)
+    mode: str | None = None
 
 
 def _index_status(mode: str) -> dict:
-    """Report whether the vector index exists and how many chunks it holds."""
     if mode in ("web", "web_cached"):
-        # Web modes need no prebuilt index — the internet is the knowledge base
-        # (web_cached builds its own Qdrant cache on the fly).
         return {"index_ready": True, "mode": mode}
     try:
         from src.qdrant import get_client
 
         info = get_client().get_collection(COLLECTION)
         count = getattr(info, "points_count", None)
-        return {"index_ready": bool(count), "mode": "local",
-                "collection": COLLECTION, "chunks": count}
-    except Exception as exc:  # collection missing / DB unreachable
-        return {"index_ready": False, "mode": "local",
-                "collection": COLLECTION, "error": str(exc)}
+        return {"index_ready": bool(count), "mode": "local", "collection": COLLECTION, "chunks": count}
+    except Exception as exc:
+        return {"index_ready": False, "mode": "local", "collection": COLLECTION, "error": str(exc)}
 
 
 @app.get("/health")
 def health():
-    """Liveness + index readiness (use this to confirm a deploy is usable)."""
     return {"status": "ok", **_index_status(RETRIEVAL_MODE)}
 
 
 @app.get("/config")
 def config():
-    """Public, non-secret config so the UI can render available options."""
     return {
         "default_mode": RETRIEVAL_MODE,
         "modes": sorted(VALID_MODES),
@@ -93,12 +76,12 @@ def ask(q: Query):
             status_code=503,
             detail=(
                 "Vector index is not ready. Add documents to data/raw/ and run "
-                "`python -m src.ingest && python -m src.index_build`, or switch to "
-                f"web mode. Details: {status.get('error', 'empty collection')}"
+                "`python -m src.ingest && python -m src.index_build`, or switch to web mode. "
+                f"Details: {status.get('error', 'empty collection')}"
             ),
         )
 
     try:
         return answer_question(question, mode=mode)
-    except Exception as exc:  # surface a clean error instead of a 500 stack trace
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

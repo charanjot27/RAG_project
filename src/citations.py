@@ -1,15 +1,4 @@
-"""Component 7 — Citations, abstention & final output.
-
-Assemble the verified sentences into the final, color-coded, cited answer,
-compute the faithfulness score (share of sentences the sources support), and
-act on that score:
-
-  * abstention   — if faithfulness is below ABSTAIN_THRESHOLD, refuse rather
-                   than serve an answer we can't stand behind ("knows when it
-                   doesn't know").
-  * self-correction — also return a `grounded_answer` containing ONLY the
-                   verified sentences, so the unsupported ones are dropped.
-"""
+"""Assemble the final output: citations, faithfulness score, abstention."""
 
 from __future__ import annotations
 
@@ -48,10 +37,7 @@ def build_output(verified: list[dict], abstain_threshold: float = ABSTAIN_THRESH
                 }
             )
 
-    # Self-correction: the answer with only the verified sentences kept.
     grounded_answer = " ".join(s["text"] for s in rendered if s["status"] == "grounded")
-
-    # Abstention: refuse when faithfulness is below the configured floor.
     abstained = bool(verified) and faithfulness < abstain_threshold
 
     return {

@@ -1,13 +1,4 @@
-"""Generate embedding training pairs semi-automatically.
-
-For each chunk, ask the LLM to write a couple of questions the passage
-answers. That yields hundreds of {question, positive} pairs cheaply — the
-training data for training/train_embeddings.py.
-
-    python -m scripts.gen_training_pairs --limit 200
-
-Uses the configured LLM backend (LLM_PROVIDER — Groq by default, so it's free).
-"""
+"""Generate embedding training pairs by asking the LLM for questions per chunk."""
 
 from __future__ import annotations
 
@@ -33,9 +24,8 @@ def questions_for(text: str) -> list[str]:
         system="You write concise, natural questions. Output only the questions.",
         max_tokens=200,
     )
-    lines = answer.splitlines()
     out = []
-    for line in lines:
+    for line in answer.splitlines():
         q = re.sub(r"^\s*[-*\d.)]+\s*", "", line).strip()
         if q.endswith("?"):
             out.append(q)
@@ -49,7 +39,7 @@ def main() -> None:
 
     chunks = load_chunks()[: args.limit]
     if not chunks:
-        raise SystemExit("No chunks. Add PDFs to data/raw/ and run: python -m src.ingest")
+        raise SystemExit("No chunks. Add documents to data/raw/ and run: python -m src.ingest")
 
     pairs = []
     for i, c in enumerate(chunks, 1):

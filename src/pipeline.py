@@ -1,10 +1,4 @@
-"""Ties all components together.
-
-    question -> hybrid retrieval -> rerank -> generate -> verify -> cite
-
-Basic per-stage timing is logged so you can see where the time goes
-(retrieval vs reranking vs generation vs verification).
-"""
+"""End-to-end: retrieve -> rerank -> generate -> verify -> cite."""
 
 from __future__ import annotations
 
@@ -24,14 +18,12 @@ log = logging.getLogger("verifin")
 def _timed(stage: str, timings: dict, fn, *args):
     t = time.time()
     out = fn(*args)
-    dt = round(time.time() - t, 3)
-    timings[stage] = dt
-    log.info("%-12s %5.2fs", stage, dt)
+    timings[stage] = round(time.time() - t, 3)
+    log.info("%-12s %5.2fs", stage, timings[stage])
     return out
 
 
 def _retrieve(query: str, mode: str | None = None) -> list[dict]:
-    """Get candidate chunks — from the local index, live web, or cached web."""
     mode = (mode or RETRIEVAL_MODE).lower()
     if mode == "web":
         from src.web_source import web_search_chunks
@@ -53,17 +45,13 @@ def answer_question(query: str, mode: str | None = None) -> dict:
     top = _timed("rerank", timings, rerank, query, candidates, TOP_N)
     draft = _timed("generation", timings, generate_answer, query, top)
     verified = _timed("verification", timings, verify_answer, draft, top)
+
     result = build_output(verified)
     result["mode"] = active_mode
     result["timings"] = timings
     result["draft_answer"] = draft
     result["sources_used"] = [
-        {
-            "id": c["id"],
-            "source": c["source"],
-            "page": c["page"],
-            "title": c.get("title"),
-        }
+        {"id": c["id"], "source": c["source"], "page": c["page"], "title": c.get("title")}
         for c in top
     ]
     return result

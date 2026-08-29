@@ -1,7 +1,6 @@
 import type { AskResponse, Health, Mode } from "./types";
 
-// In dev, "/api" is proxied to the FastAPI backend (see vite.config.ts).
-// In production, set VITE_API_URL to your deployed API base URL.
+// "/api" is proxied in dev; set VITE_API_URL for production builds.
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api";
 
 async function handle<T>(res: Response): Promise<T> {

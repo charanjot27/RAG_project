@@ -1,13 +1,4 @@
-"""Component 6 — Faithfulness / hallucination detection.
-
-The heart of the project. After the answer is written, check every
-sentence against the sources with an NLI (Natural Language Inference)
-model: given a premise (a source chunk) and a hypothesis (one generated
-sentence), does the premise *entail* the sentence?
-
-    sources entail the sentence  -> grounded  (green + citation)
-    otherwise                    -> unverified (red flag)
-"""
+"""Per-sentence faithfulness check with an NLI model."""
 
 from __future__ import annotations
 
@@ -21,21 +12,16 @@ from src.config import ENTAILMENT_THRESHOLD, NLI_MODEL
 def _get_nli():
     from transformers import pipeline
 
-    # An NLI model outputs entailment / neutral / contradiction scores.
     return pipeline("text-classification", model=NLI_MODEL, top_k=None)
 
 
-# Citation-marker / footnote artifacts some LLMs inject, e.g. the CJK bracket
-# form with a dagger, or [2]. They carry no meaning but drag down NLI
-# entailment, so strip them before checking. 【/】 = 【 】, † = †.
-_CITATION_MARKERS = re.compile(r"[【†][^】]*】|\[\d+[^\]]*\]|️")
-# Odd unicode spaces: no-break  , thin  , narrow no-break  ,
-# zero-width ​. These break token matching in the verifier.
-_WEIRD_SPACES = re.compile(r"[   ​]")
+# Strip citation markers (【1†…】, [2]) and odd unicode spaces before checking —
+# they carry no meaning but drag down entailment scores.
+_CITATION_MARKERS = re.compile("[【†][^】]*】|\\[\\d+[^\\]]*\\]|️")
+_WEIRD_SPACES = re.compile("[   ​]")
 
 
 def clean_text(text: str) -> str:
-    """Strip citation markers and normalize whitespace before verifying/displaying."""
     text = _CITATION_MARKERS.sub("", text)
     text = _WEIRD_SPACES.sub(" ", text)
     return re.sub(r"\s+", " ", text).strip()
@@ -53,7 +39,6 @@ def _entailment_score(premise: str, hypothesis: str) -> float:
 
 
 def verify_sentence(sentence: str, chunks: list[dict]) -> dict:
-    """Check one sentence against every source chunk; keep the best support."""
     best = {"label": "unverified", "score": 0.0, "source": None}
     for c in chunks:
         ent = _entailment_score(c["text"], sentence)
@@ -67,7 +52,4 @@ def verify_sentence(sentence: str, chunks: list[dict]) -> dict:
 
 
 def verify_answer(answer: str, chunks: list[dict]) -> list[dict]:
-    return [
-        {"sentence": s, **verify_sentence(s, chunks)}
-        for s in split_sentences(answer)
-    ]
+    return [{"sentence": s, **verify_sentence(s, chunks)} for s in split_sentences(answer)]

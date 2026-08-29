@@ -1,12 +1,4 @@
-"""Download the ML models at build time so the container is ready on boot.
-
-Called from the Dockerfile. Without this, the first request triggers a
-~2 GB download and can time out. Running it here bakes the models into
-the image layer instead.
-
-Honors EMBEDDING_MODEL / RERANKER_MODEL / NLI_MODEL env vars so a custom
-or fine-tuned model is what gets cached.
-"""
+"""Download the ML models at Docker build time so the first request is fast."""
 
 from __future__ import annotations
 

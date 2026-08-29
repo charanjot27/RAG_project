@@ -1,28 +1,16 @@
-"""Live web retrieval — the internet as the knowledge base.
+"""Live web retrieval: search, fetch, and chunk pages on the fly.
 
-Instead of manually adding PDFs, search the web for the question, fetch the
-top pages, extract their main text, and chunk it on the fly. The result is a
-list of chunk records identical in shape to the local retriever's output, so
-it flows through the SAME rerank -> generate -> verify -> cite pipeline. Every
-sentence is still fact-checked, and citations point to real URLs.
-
-Free and keyless: DuckDuckGo for search, trafilatura for clean text extraction.
-
-Runs anywhere with open internet (your laptop, most cloud hosts). Some locked-down
-sandboxes block outbound web fetch — that's an environment limit, not a code issue.
+Keyless — DuckDuckGo for search, trafilatura for text extraction. Needs
+open internet.
 """
 
 from __future__ import annotations
 
-from src.config import (
-    WEB_MAX_CHUNKS_PER_PAGE,
-    WEB_RESULTS,
-)
+from src.config import WEB_MAX_CHUNKS_PER_PAGE, WEB_RESULTS
 from src.ingest import chunk_text
 
 
 def search_urls(query: str, max_results: int = WEB_RESULTS) -> list[dict]:
-    """Return [{title, url}] for the top web results (DuckDuckGo, no API key)."""
     from ddgs import DDGS
 
     out, seen = [], set()
@@ -37,7 +25,6 @@ def search_urls(query: str, max_results: int = WEB_RESULTS) -> list[dict]:
 
 
 def fetch_main_text(url: str) -> str:
-    """Download a page and extract its main article text (no nav/ads/boilerplate)."""
     import trafilatura
 
     downloaded = trafilatura.fetch_url(url)
@@ -50,14 +37,13 @@ def fetch_main_text(url: str) -> str:
 
 
 def web_search_chunks(query: str, num_results: int = WEB_RESULTS) -> list[dict]:
-    """Search the web for ``query`` and return chunk records grounded in real pages."""
     chunks: list[dict] = []
     for hit in search_urls(query, num_results):
         url = hit["url"]
         try:
             text = fetch_main_text(url)
         except Exception:
-            continue  # skip pages that fail to download/parse
+            continue
         if not text:
             continue
         for j, chunk in enumerate(chunk_text(text)[:WEB_MAX_CHUNKS_PER_PAGE]):
@@ -66,7 +52,7 @@ def web_search_chunks(query: str, num_results: int = WEB_RESULTS) -> list[dict]:
                     "id": f"{url}#c{j}",
                     "source": url,
                     "title": hit["title"],
-                    "page": j + 1,  # "section" within the page
+                    "page": j + 1,
                     "text": chunk,
                 }
             )
