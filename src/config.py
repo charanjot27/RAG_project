@@ -58,8 +58,10 @@ RERANKER_MODEL = os.getenv(
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower()
 GEN_MAX_TOKENS = int(os.getenv("GEN_MAX_TOKENS", "800"))
 
-# Groq model id — see https://console.groq.com/docs/models for current options.
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# Groq model id. Groq rotates its catalog, so list what your key can use with
+#   python -c "from groq import Groq; [print(m.id) for m in Groq().models.list().data]"
+# openai/gpt-oss-120b is capable and widely available; gpt-oss-20b is faster.
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # Anthropic model id (used only when LLM_PROVIDER=anthropic).
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
