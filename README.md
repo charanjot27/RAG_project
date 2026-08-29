@@ -49,7 +49,10 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # 2. Secrets
-cp .env.example .env               # then edit .env and add your ANTHROPIC_API_KEY
+cp .env.example .env               # add a free GROQ_API_KEY (console.groq.com/keys)
+#    Generation uses Groq (free) by default. To use Claude instead, set
+#    LLM_PROVIDER=anthropic and ANTHROPIC_API_KEY. Only this step calls an LLM —
+#    embeddings, reranking and verification are all free & local.
 
 # 3. Add documents
 #    Try it instantly with the bundled sample doc:
@@ -93,7 +96,7 @@ Three pieces: **Qdrant Cloud** (DB) + **Render** (API) + **Streamlit Cloud** (UI
    `QDRANT_API_KEY` set, run `python -m src.index_build`. The live API only
    *reads* the index; it does not build it.
 3. **API → Render:** this repo ships a [`render.yaml`](render.yaml) blueprint —
-   New → Blueprint → pick the repo. Set `ANTHROPIC_API_KEY`, `QDRANT_URL`,
+   New → Blueprint → pick the repo. Set `GROQ_API_KEY`, `QDRANT_URL`,
    `QDRANT_API_KEY` in the dashboard. The Dockerfile pre-bakes the models so
    there is no cold-start download.
 4. **UI → Streamlit Community Cloud:** point it at `app/app.py` and set the

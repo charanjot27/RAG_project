@@ -51,11 +51,18 @@ RERANKER_MODEL = os.getenv(
 )
 
 # --- Generation ------------------------------------------------------------
-# claude-sonnet-4-6 is a solid, cost-effective default for RAG. Override with
-# ANTHROPIC_MODEL to try a more capable model (e.g. claude-opus-5) or a cheaper
-# one (e.g. claude-haiku-4-5).
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+# Which LLM writes the final answer. Only this step calls an LLM — the rest of
+# the pipeline is free/local.
+#   "groq"      -> free, fast, OpenAI-compatible (default). Needs GROQ_API_KEY.
+#   "anthropic" -> Claude API (paid). Needs ANTHROPIC_API_KEY.
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower()
 GEN_MAX_TOKENS = int(os.getenv("GEN_MAX_TOKENS", "800"))
+
+# Groq model id — see https://console.groq.com/docs/models for current options.
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+# Anthropic model id (used only when LLM_PROVIDER=anthropic).
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 # --- Faithfulness / verification ------------------------------------------
 NLI_MODEL = os.getenv("NLI_MODEL", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")

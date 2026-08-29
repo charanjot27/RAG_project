@@ -6,7 +6,7 @@ training data for training/train_embeddings.py.
 
     python -m scripts.gen_training_pairs --limit 200
 
-Requires ANTHROPIC_API_KEY. Costs a small amount of API usage.
+Uses the configured LLM backend (LLM_PROVIDER — Groq by default, so it's free).
 """
 
 from __future__ import annotations
@@ -16,8 +16,7 @@ import json
 import re
 from pathlib import Path
 
-from src.config import ANTHROPIC_MODEL
-from src.generate import _get_client
+from src.generate import complete
 from src.ingest import load_chunks
 
 OUTPUT = Path("training/embed_pairs.json")
@@ -29,12 +28,12 @@ PROMPT = (
 
 
 def questions_for(text: str) -> list[str]:
-    msg = _get_client().messages.create(
-        model=ANTHROPIC_MODEL,
+    answer = complete(
+        PROMPT.format(text=text[:2000]),
+        system="You write concise, natural questions. Output only the questions.",
         max_tokens=200,
-        messages=[{"role": "user", "content": PROMPT.format(text=text[:2000])}],
     )
-    lines = msg.content[0].text.splitlines()
+    lines = answer.splitlines()
     out = []
     for line in lines:
         q = re.sub(r"^\s*[-*\d.)]+\s*", "", line).strip()
