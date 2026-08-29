@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { ArrowRight } from "./Icons";
 
 const STEPS = [
   { n: "01", title: "Retrieve", desc: "Hybrid search (meaning + keywords) or live web finds candidate passages.", dl: false },
@@ -21,7 +22,7 @@ export default function Pipeline() {
           </div>
           {i < STEPS.length - 1 && (
             <div className="parrow" aria-hidden>
-              →
+              <ArrowRight />
             </div>
           )}
         </Fragment>

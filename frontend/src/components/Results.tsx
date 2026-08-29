@@ -1,5 +1,6 @@
 import type { AskResponse } from "../types";
 import FaithfulnessGauge from "./FaithfulnessGauge";
+import { Check, HandStop } from "./Icons";
 
 const STAGE_LABELS: Record<string, string> = {
   retrieval: "Retrieval",
@@ -28,9 +29,13 @@ export default function Results({ data }: { data: AskResponse }) {
         <FaithfulnessGauge score={data.faithfulness_score} />
         <div className="result-meta">
           {data.abstained ? (
-            <span className="badge warn">⚠ Abstained — not confident enough</span>
+            <span className="badge warn">
+              <HandStop style={{ width: 15, height: 15 }} /> Abstained — not confident enough
+            </span>
           ) : (
-            <span className="badge ok">✓ {grounded}/{data.sentences.length} sentences verified</span>
+            <span className="badge ok">
+              <Check style={{ width: 15, height: 15 }} /> {grounded}/{data.sentences.length} sentences verified
+            </span>
           )}
           <div className="timings">
             <span className="timing">
