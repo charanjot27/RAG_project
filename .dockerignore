@@ -1,0 +1,23 @@
+# Keep the image small and free of secrets/local cruft.
+.git
+.gitignore
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+.env
+*.log
+
+# Local data & trained models are provided at runtime / via a volume, not baked in.
+data/raw/*
+data/processed/*
+models/*
+
+# Docs & dev-only files
+DOCUMENTATION.md
+tests/
+.github/

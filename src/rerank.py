@@ -29,5 +29,5 @@ def rerank(query: str, chunks: list[dict], top_n: int = TOP_N) -> list[dict]:
         return []
     pairs = [(query, c["text"]) for c in chunks]
     scores = _get_reranker().predict(pairs)
-    ranked = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)
+    ranked = sorted(zip(chunks, scores, strict=False), key=lambda x: x[1], reverse=True)
     return [c for c, _ in ranked[:top_n]]

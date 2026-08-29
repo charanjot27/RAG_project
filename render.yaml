@@ -1,0 +1,27 @@
+# Render Blueprint — deploy the VeriFin API from the Dockerfile.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# After first deploy you MUST build the index once against your Qdrant
+# (locally, with QDRANT_URL/QDRANT_API_KEY set):  python -m src.index_build
+#
+# NOTE: the API loads PyTorch + 3 transformer models (~1.5–2.5 GB RAM).
+# The free/starter 512 MB plans will OOM on boot — use at least "standard".
+
+services:
+  - type: web
+    name: verifin-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard          # 2 GB RAM; downgrade only if you shrink the models
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false         # set this in the Render dashboard (secret)
+      - key: QDRANT_URL
+        sync: false         # your Qdrant Cloud cluster URL
+      - key: QDRANT_API_KEY
+        sync: false         # your Qdrant Cloud API key
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-6
+      - key: ALLOWED_ORIGINS
+        value: "*"          # lock down to your Streamlit URL for real use

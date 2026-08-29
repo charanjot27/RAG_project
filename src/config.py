@@ -10,9 +10,14 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
 
-load_dotenv()
+    load_dotenv()
+except ModuleNotFoundError:
+    # python-dotenv is optional; env vars can also be set directly (e.g. in
+    # Docker / the host dashboard). Missing .env support is not fatal.
+    pass
 
 # --- Paths -----------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
@@ -56,3 +61,13 @@ GEN_MAX_TOKENS = int(os.getenv("GEN_MAX_TOKENS", "800"))
 NLI_MODEL = os.getenv("NLI_MODEL", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli")
 # Entailment score above which a sentence counts as "grounded".
 ENTAILMENT_THRESHOLD = float(os.getenv("ENTAILMENT_THRESHOLD", "0.5"))
+
+# --- API -------------------------------------------------------------------
+# Comma-separated list of allowed CORS origins for the browser UI.
+# "*" allows any origin (fine for a demo; lock this down for real use).
+ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", "*").split(",") if o.strip()
+]
+
+# Document formats the ingester will read from RAW_DIR.
+DOC_GLOBS = ("*.pdf", "*.txt", "*.md")

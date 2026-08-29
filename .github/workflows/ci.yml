@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Keep CI fast: don't install the multi-GB torch stack. We lint, verify
+      # every module byte-compiles, and run the dependency-light unit tests.
+      - name: Install lightweight test deps
+        run: pip install ruff pytest python-dotenv
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Byte-compile all modules
+        run: python -m compileall -q src api app training eval scripts
+
+      - name: Unit tests (no heavy models)
+        run: pytest -q

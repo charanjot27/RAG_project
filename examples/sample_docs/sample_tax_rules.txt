@@ -1,0 +1,30 @@
+SAMPLE TAX RULES (DEMO DOCUMENT — NOT REAL TAX ADVICE)
+
+This is a small, fictional document included so you can run VeriFin end to
+end before adding your own PDFs. Copy it into data/raw/ to try the pipeline:
+
+    cp examples/sample_docs/*.txt data/raw/
+    python -m src.ingest
+    python -m src.index_build
+    python -m src.pipeline "What is the penalty for late tax filing?"
+
+--- Section 1: Late filing penalty ---
+If a taxpayer files their annual return after the due date, a late filing
+penalty of 5% of the unpaid tax is charged for each month the return is late,
+up to a maximum of 25% of the unpaid tax. The penalty begins the day after the
+filing due date.
+
+--- Section 2: Standard deduction ---
+The standard deduction for a single filer for the tax year is 14,600. For
+married couples filing jointly, the standard deduction is 29,200. Taxpayers may
+claim the standard deduction instead of itemizing their deductions.
+
+--- Section 3: Interest on unpaid tax ---
+Interest is charged on any tax that remains unpaid after the due date. The
+interest rate is 8% per year, compounded daily, and applies until the balance,
+including any penalties, is paid in full.
+
+--- Section 4: Filing extensions ---
+A taxpayer may request a six-month extension to file their return. An extension
+to file is not an extension to pay: tax owed is still due by the original due
+date, and interest accrues on any unpaid amount from that date.

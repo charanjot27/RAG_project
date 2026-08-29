@@ -39,7 +39,7 @@ def keyword_search(query: str, k: int = RETRIEVE_K) -> list[dict]:
     """Classic BM25 keyword search."""
     chunks, bm25 = _bm25_index()
     scores = bm25.get_scores(query.lower().split())
-    ranked = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)
+    ranked = sorted(zip(chunks, scores, strict=False), key=lambda x: x[1], reverse=True)
     return [c for c, score in ranked[:k] if score > 0]
 
 

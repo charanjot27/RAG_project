@@ -11,19 +11,39 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from pypdf import PdfReader
-
-from src.config import CHUNK_OVERLAP, CHUNK_SIZE, CHUNKS_CACHE, PROCESSED_DIR, RAW_DIR
+from src.config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    CHUNKS_CACHE,
+    DOC_GLOBS,
+    PROCESSED_DIR,
+    RAW_DIR,
+)
 
 
 def load_pdf(path: str) -> list[dict]:
     """Read a PDF and return a list of {source, page, text} records."""
+    from pypdf import PdfReader  # imported lazily so importing this module is cheap
+
     reader = PdfReader(path)
     pages = []
     for i, page in enumerate(reader.pages):
         text = page.extract_text() or ""
         pages.append({"source": Path(path).name, "page": i + 1, "text": text})
     return pages
+
+
+def load_text_file(path: str) -> list[dict]:
+    """Read a .txt / .md file as a single-page record (handy for quick testing)."""
+    text = Path(path).read_text(encoding="utf-8", errors="ignore")
+    return [{"source": Path(path).name, "page": 1, "text": text}]
+
+
+def load_document(path: Path) -> list[dict]:
+    """Dispatch to the right loader based on file extension."""
+    if path.suffix.lower() == ".pdf":
+        return load_pdf(str(path))
+    return load_text_file(str(path))
 
 
 def chunk_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
@@ -47,10 +67,14 @@ def chunk_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) 
 
 
 def build_chunks(pdf_dir: str | Path = RAW_DIR) -> list[dict]:
-    """Read every PDF under ``pdf_dir`` and return a flat list of chunk records."""
+    """Read every supported document under ``pdf_dir`` (PDF/TXT/MD).
+
+    Returns a flat list of chunk records.
+    """
     all_chunks: list[dict] = []
-    for pdf in sorted(Path(pdf_dir).glob("*.pdf")):
-        for page in load_pdf(str(pdf)):
+    paths = sorted(p for g in DOC_GLOBS for p in Path(pdf_dir).glob(g))
+    for doc in paths:
+        for page in load_document(doc):
             for j, chunk in enumerate(chunk_text(page["text"])):
                 all_chunks.append(
                     {

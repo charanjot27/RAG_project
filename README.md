@@ -52,7 +52,10 @@ pip install -r requirements.txt
 cp .env.example .env               # then edit .env and add your ANTHROPIC_API_KEY
 
 # 3. Add documents
-#    Drop 5–20 PDFs into data/raw/  (SEC EDGAR filings, tax/regulatory PDFs, etc.)
+#    Try it instantly with the bundled sample doc:
+make sample                        # copies examples/sample_docs/*.txt into data/raw/
+#    ...or drop your own PDFs into data/raw/ (SEC EDGAR filings, tax PDFs, etc.)
+#    Supported formats: .pdf, .txt, .md
 
 # 4. Start the vector DB (local Qdrant via Docker)
 docker run -p 6333:6333 qdrant/qdrant
@@ -69,6 +72,9 @@ uvicorn api.main:app --reload --port 8000
 streamlit run app/app.py
 ```
 
+> Prefer shortcuts? A `Makefile` wraps every step — run `make help`.
+> `GET /health` reports whether the vector index is built and how many chunks it holds.
+
 ### One-command local stack (API + Qdrant)
 
 ```bash
@@ -77,6 +83,27 @@ docker compose up --build          # API on :8000, Qdrant on :6333
 # then, once, build the index against the running Qdrant:
 python -m src.index_build
 ```
+
+## Deploy to the cloud
+
+Three pieces: **Qdrant Cloud** (DB) + **Render** (API) + **Streamlit Cloud** (UI).
+
+1. **Qdrant Cloud** (free tier): create a cluster, note its URL + API key.
+2. **Build the index once against it** — locally, with `QDRANT_URL` and
+   `QDRANT_API_KEY` set, run `python -m src.index_build`. The live API only
+   *reads* the index; it does not build it.
+3. **API → Render:** this repo ships a [`render.yaml`](render.yaml) blueprint —
+   New → Blueprint → pick the repo. Set `ANTHROPIC_API_KEY`, `QDRANT_URL`,
+   `QDRANT_API_KEY` in the dashboard. The Dockerfile pre-bakes the models so
+   there is no cold-start download.
+4. **UI → Streamlit Community Cloud:** point it at `app/app.py` and set the
+   `API_URL` secret to your Render URL.
+
+> ⚠️ **Memory:** the API loads PyTorch + 3 transformer models (~1.5–2.5 GB RAM).
+> Free 512 MB tiers OOM on boot — use Render's `standard` plan (set in `render.yaml`)
+> or a host with ≥ 2 GB.
+
+Confirm the deploy with `curl https://<your-api>/health` — `index_ready: true` means it's usable.
 
 ## Configuration
 
