@@ -4,9 +4,9 @@ import { ask } from "../api";
 import Results from "./Results";
 
 const MODES: { id: Mode; label: string; hint: string }[] = [
-  { id: "local", label: "My Docs", hint: "Answer from your indexed documents" },
-  { id: "web", label: "Live Web", hint: "Search the internet, verify every sentence" },
-  { id: "web_cached", label: "Web + Cache", hint: "Web search cached for instant repeats" },
+  { id: "local", label: "My Docs", hint: "Answer only from the documents you've added" },
+  { id: "web", label: "Live Web", hint: "Search the web and check every sentence against it" },
+  { id: "web_cached", label: "Web + Cache", hint: "Same, but remembers pages so repeats are instant" },
 ];
 
 const SAMPLES = [

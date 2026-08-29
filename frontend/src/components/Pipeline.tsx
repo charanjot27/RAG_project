@@ -2,11 +2,11 @@ import { Fragment } from "react";
 import { ArrowRight } from "./Icons";
 
 const STEPS = [
-  { n: "01", title: "Retrieve", desc: "Hybrid search (meaning + keywords) or live web finds candidate passages.", dl: false },
-  { n: "02", title: "Rerank", desc: "A cross-encoder re-reads each candidate with the question and keeps the best.", dl: true },
-  { n: "03", title: "Generate", desc: "The LLM writes an answer using only the retrieved sources.", dl: false },
-  { n: "04", title: "Verify", desc: "An NLI model checks every sentence: is it entailed by the sources?", dl: true },
-  { n: "05", title: "Cite & flag", desc: "Green = cited to a source. Red = unverified. Below threshold = abstain.", dl: false },
+  { n: "01", title: "Find", desc: "Searches your documents or the web for passages that might hold the answer.", dl: false },
+  { n: "02", title: "Shortlist", desc: "Re-reads each passage against your question and keeps only the most relevant ones.", dl: true },
+  { n: "03", title: "Draft", desc: "Writes an answer using only those passages — nothing from memory.", dl: false },
+  { n: "04", title: "Check", desc: "Compares every sentence back to the sources: is this actually supported?", dl: true },
+  { n: "05", title: "Show", desc: "Cites what holds up, flags what doesn't, and stays quiet when it's unsure.", dl: false },
 ];
 
 export default function Pipeline() {

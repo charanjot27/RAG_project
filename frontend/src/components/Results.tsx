@@ -52,8 +52,8 @@ export default function Results({ data }: { data: AskResponse }) {
 
       {data.abstained && (
         <div className="abstain-banner">
-          <b>Answer withheld.</b> Too little of the draft could be verified against the
-          sources, so VeriFin declined to answer rather than risk a hallucination.
+          <b>Holding back on this one.</b> Not enough of the answer could be backed up by the
+          sources, so it chose to stay quiet rather than guess.
         </div>
       )}
 
