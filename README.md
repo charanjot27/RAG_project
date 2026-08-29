@@ -37,7 +37,8 @@ The three deep-learning components you can train yourself: the **embedding model
 | `training/` | fine-tune the embedding model & reranker |
 | `eval/` | RAGAS scoreboard |
 | `api/main.py` | FastAPI backend |
-| `app/app.py` | Streamlit frontend |
+| `frontend/` | **React UI** (professional, promotional — recommended) |
+| `app/app.py` | Streamlit frontend (quick alternative) |
 
 ## Quickstart
 
@@ -78,6 +79,17 @@ streamlit run app/app.py
 
 > Prefer shortcuts? A `Makefile` wraps every step — run `make help`.
 > `GET /health` reports whether the vector index is built and how many chunks it holds.
+
+### Polished React UI (recommended)
+
+```bash
+uvicorn api.main:app --port 8000      # terminal 1: backend
+cd frontend && npm install && npm run dev   # terminal 2: UI at http://localhost:5173
+```
+
+A professional single-page app: live demo with all three retrieval modes, a faithfulness
+gauge, green/red cited sentences, abstention banner, stage timings, plus How-it-works,
+benchmark, and About sections for promotion. See [`frontend/README.md`](frontend/README.md).
 
 ### One-command local stack (API + Qdrant)
 

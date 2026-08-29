@@ -21,20 +21,23 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("verifin")
 
 
-def _timed(stage: str, fn, *args):
+def _timed(stage: str, timings: dict, fn, *args):
     t = time.time()
     out = fn(*args)
-    log.info("%-12s %5.2fs", stage, time.time() - t)
+    dt = round(time.time() - t, 3)
+    timings[stage] = dt
+    log.info("%-12s %5.2fs", stage, dt)
     return out
 
 
-def _retrieve(query: str) -> list[dict]:
+def _retrieve(query: str, mode: str | None = None) -> list[dict]:
     """Get candidate chunks — from the local index, live web, or cached web."""
-    if RETRIEVAL_MODE == "web":
+    mode = (mode or RETRIEVAL_MODE).lower()
+    if mode == "web":
         from src.web_source import web_search_chunks
 
         return web_search_chunks(query)
-    if RETRIEVAL_MODE == "web_cached":
+    if mode == "web_cached":
         from src.web_cache import cached_web_search
 
         return cached_web_search(query)
@@ -43,14 +46,25 @@ def _retrieve(query: str) -> list[dict]:
     return hybrid_search(query, RETRIEVE_K)
 
 
-def answer_question(query: str) -> dict:
-    candidates = _timed("retrieval", _retrieve, query)
-    top = _timed("rerank", rerank, query, candidates, TOP_N)
-    draft = _timed("generation", generate_answer, query, top)
-    verified = _timed("verification", verify_answer, draft, top)
+def answer_question(query: str, mode: str | None = None) -> dict:
+    timings: dict[str, float] = {}
+    active_mode = (mode or RETRIEVAL_MODE).lower()
+    candidates = _timed("retrieval", timings, _retrieve, query, active_mode)
+    top = _timed("rerank", timings, rerank, query, candidates, TOP_N)
+    draft = _timed("generation", timings, generate_answer, query, top)
+    verified = _timed("verification", timings, verify_answer, draft, top)
     result = build_output(verified)
+    result["mode"] = active_mode
+    result["timings"] = timings
+    result["draft_answer"] = draft
     result["sources_used"] = [
-        {"id": c["id"], "source": c["source"], "page": c["page"]} for c in top
+        {
+            "id": c["id"],
+            "source": c["source"],
+            "page": c["page"],
+            "title": c.get("title"),
+        }
+        for c in top
     ]
     return result
 
