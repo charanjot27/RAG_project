@@ -18,6 +18,9 @@ models/*
 data/processed/*
 !data/processed/.gitkeep
 
+# Embedded (on-disk) Qdrant data — regenerate with `python -m src.index_build`
+qdrant_data/
+
 # Raw source documents (add your own PDFs locally)
 data/raw/*
 !data/raw/.gitkeep

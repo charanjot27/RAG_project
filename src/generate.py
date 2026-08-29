@@ -28,7 +28,10 @@ SYSTEM = """You answer ONLY using the provided sources.
 - Every claim must be supported by the sources.
 - If the sources don't contain the answer, say: "The provided sources do not cover this."
 - Write in clear, short, single-fact sentences (this makes fact-checking reliable).
-- Do not add outside knowledge."""
+- Do not add outside knowledge.
+- Write plain prose only. Do NOT include citation markers, footnotes, bracketed
+  reference numbers (e.g. [1], 【1】), or special/unicode spacing — the system adds
+  citations itself afterward."""
 
 
 # --- Groq (free, OpenAI-compatible) ----------------------------------------

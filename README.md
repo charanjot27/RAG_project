@@ -60,8 +60,9 @@ make sample                        # copies examples/sample_docs/*.txt into data
 #    ...or drop your own PDFs into data/raw/ (SEC EDGAR filings, tax PDFs, etc.)
 #    Supported formats: .pdf, .txt, .md
 
-# 4. Start the vector DB (local Qdrant via Docker)
-docker run -p 6333:6333 qdrant/qdrant
+# 4. Vector DB — no Docker needed: the default .env uses embedded Qdrant
+#    (QDRANT_PATH=qdrant_data). Prefer a server? `docker run -p 6333:6333 qdrant/qdrant`
+#    and comment out QDRANT_PATH in .env.
 
 # 5. Ingest + build the vector index
 python -m src.ingest

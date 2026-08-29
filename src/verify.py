@@ -25,7 +25,24 @@ def _get_nli():
     return pipeline("text-classification", model=NLI_MODEL, top_k=None)
 
 
+# Citation-marker / footnote artifacts some LLMs inject, e.g. the CJK bracket
+# form with a dagger, or [2]. They carry no meaning but drag down NLI
+# entailment, so strip them before checking. 【/】 = 【 】, † = †.
+_CITATION_MARKERS = re.compile(r"[【†][^】]*】|\[\d+[^\]]*\]|️")
+# Odd unicode spaces: no-break  , thin  , narrow no-break  ,
+# zero-width ​. These break token matching in the verifier.
+_WEIRD_SPACES = re.compile(r"[   ​]")
+
+
+def clean_text(text: str) -> str:
+    """Strip citation markers and normalize whitespace before verifying/displaying."""
+    text = _CITATION_MARKERS.sub("", text)
+    text = _WEIRD_SPACES.sub(" ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def split_sentences(text: str) -> list[str]:
+    text = clean_text(text)
     return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
 
 

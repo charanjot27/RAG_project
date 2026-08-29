@@ -37,6 +37,11 @@ EMBEDDING_MODEL = os.getenv(
 )
 
 # --- Vector store ----------------------------------------------------------
+# Three modes, in priority order:
+#   1. QDRANT_PATH  -> embedded, on-disk Qdrant (no server, no Docker) — easiest
+#   2. QDRANT_URL   -> Qdrant Cloud (URL + API key)
+#   3. host/port    -> a Qdrant server (e.g. `docker run qdrant/qdrant`)
+QDRANT_PATH = os.getenv("QDRANT_PATH")        # e.g. "qdrant_data" for embedded mode
 QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", "6333"))
 QDRANT_URL = os.getenv("QDRANT_URL")          # e.g. Qdrant Cloud URL (overrides host/port)
