@@ -1,24 +1,24 @@
-/* VeriFin theme — emerald accent, muted surfaces, dark + light. */
+/* VeriFin theme — shared FinTrace identity: yellow on slate, dark + light. */
 :root {
-  --bg: #08090c;
-  --bg-2: #0d0f14;
-  --panel: #0f1218;
-  --panel-2: #12161d;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-2: rgba(255, 255, 255, 0.12);
-  --text: #eef1f6;
-  --text-2: #a7b0bf;
+  --bg: #23292d;
+  --bg-2: #262c31;
+  --panel: #2b3237;
+  --panel-2: #323A3F;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-2: rgba(255, 255, 255, 0.14);
+  --text: #e6e9ea;
+  --text-2: #9aa4ab;
   --text-3: #6c7480;
-  --accent: #10b981;
-  --accent-2: #34d399;
-  --accent-ink: #04120c;
-  --blue: #60a5fa;
-  --green: #34d399;
-  --green-bg: rgba(52, 211, 153, 0.1);
-  --red: #f87171;
-  --red-bg: rgba(248, 113, 113, 0.1);
-  --amber: #fbbf24;
-  --amber-bg: rgba(251, 191, 36, 0.1);
+  --accent: #FFFA00;
+  --accent-2: #FFF27A;
+  --accent-ink: #1a1c00;
+  --blue: #FFC53D;
+  --green: #5fd68b;
+  --green-bg: rgba(95, 214, 139, 0.12);
+  --red: #ff6b6b;
+  --red-bg: rgba(255, 107, 107, 0.12);
+  --amber: #FFC53D;
+  --amber-bg: rgba(255, 197, 61, 0.12);
   --radius: 14px;
   --radius-sm: 10px;
   --maxw: 1140px;
@@ -36,8 +36,8 @@
   --text: #0b1220;
   --text-2: #475467;
   --text-3: #98a2b3;
-  --accent: #059669;
-  --accent-2: #10b981;
+  --accent: #8a8600;
+  --accent-2: #B3AE00;
   --accent-ink: #ffffff;
   --green: #059669;
   --green-bg: rgba(5, 150, 105, 0.08);
